@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:1.1.0-cuda10.0-cudnn7.5-runtime
+FROM pytorch/pytorch:1.6.0-cuda10.1-cudnn7-runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libsox-fmt-all \
@@ -7,20 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /workspace
 
-# install torchaudio from source
-RUN git clone https://github.com/pytorch/audio.git pytorchaudio && cd pytorchaudio && python setup.py install
+COPY *.py /workspace
 
-COPY model.py /workspace
-COPY data.py /workspace
-COPY train.py /workspace
-COPY utils.py /workspace
-COPY eval.py /workspace
-COPY test.py /workspace
-COPY hubconf.py /workspace
+RUN conda install tqdm=4.32 ffmpeg resampy -c conda-forge
 
-RUN conda install tqdm=4.28 ffmpeg resampy -c conda-forge
-
-RUN pip install musdb>=0.3.0
-RUN pip install norbert>=0.2.0
-
-ENTRYPOINT ["python", "test.py"]
+RUN pip install 'musdb==0.3.1' 'norbert>=0.2.0' 'museval==0.3.0'
